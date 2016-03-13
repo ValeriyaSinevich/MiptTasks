@@ -1,0 +1,4 @@
+
+futex: 0.494
+mutex: 9.912
+custom futex is 20.0648 times faster

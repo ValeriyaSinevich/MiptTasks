@@ -1,4 +1,21 @@
+number of threads is  11
 
-futex: 0.494
-mutex: 9.912
-custom futex is 20.0648 times faster
+futex: 1.408
+mutex: 11.569
+custom futex is 8.21662 times faster
+
+
+number of threads is  4
+
+futex: 0.311
+mutex: 0.602
+custom futex is 1.93569 times faster
+
+
+number of threads is  16
+
+futex: 1.839
+mutex: 14.019
+custom futex is 7.62316 times faster
+
+

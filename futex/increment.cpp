@@ -26,7 +26,7 @@ bool incrementMtx(volatile long long & b, long long needed, std::mutex & mtx, in
 }
 
 
-double incrementFutex() {
+double incrementFutex(int numberOfThreads) {
 	futex ftx;
 	double duration;
 	volatile long long a = 0;
@@ -34,7 +34,7 @@ double incrementFutex() {
 	std::vector<std::thread> threads;
 	std::clock_t start;
 	start = std::clock();
-	for (int i = 1; i < 11; ++i) {
+	for (int i = 1; i < numberOfThreads; ++i) {
 		threads.push_back(std::thread(incrementFtx, std::ref(a), need, std::ref(ftx), i));
 	}
 
@@ -46,7 +46,7 @@ double incrementFutex() {
 	return duration;
 }
 
-double incrementMutex() {
+double incrementMutex(int numberOfThreads) {
 	std::mutex mtx;
 	double duration;
 	volatile long long a = 0;
@@ -54,7 +54,7 @@ double incrementMutex() {
 	std::vector<std::thread> threads;
 	std::clock_t start;
 	start = std::clock();
-	for (int i = 1; i < 11; ++i) {
+	for (int i = 1; i < numberOfThreads; ++i) {
 		threads.push_back(std::thread(incrementMtx, std::ref(a), need, std::ref(mtx), i));
 	}
 
@@ -66,14 +66,22 @@ double incrementMutex() {
 	return duration;
 }
 
+void launch(int numberOfThreads, std::ofstream & out) {
+	out << "number of threads is  " << numberOfThreads << std::endl;
+	double futexDuration = incrementFutex(numberOfThreads);
+	double mutexDuration = incrementMutex(numberOfThreads);
+	out << std::endl << "futex: " << futexDuration << std::endl << "mutex: " << mutexDuration << std::endl;
+	if (futexDuration < mutexDuration)
+		out << "custom futex is " << mutexDuration / futexDuration << " times faster" << std::endl << std::endl << std::endl;
+	else
+		out << "default mutex is " << futexDuration / mutexDuration << " times faster" << std::endl << std::endl << std::endl;
+}
+
 int main() {
 	std::ofstream out;
-	out.open("futexVSmutex.out");
-	double futexDuration = 0, mutexDuration = 0;
-	futexDuration = incrementFutex();
-	mutexDuration = incrementMutex();
-	out <<std::endl << "futex: " << futexDuration << std::endl << "mutex: " << mutexDuration << std::endl;
-	if (futexDuration < mutexDuration)
-		out << "custom futex is " << mutexDuration / futexDuration << " times faster" << std::endl;
+	out.open("futexVSmutex.out", std::ios::ate);
+	launch(11, out);
+	launch(std::thread::hardware_concurrency() / 2, out);
+	launch(std::thread::hardware_concurrency() *2, out);
 	return 0;
 }

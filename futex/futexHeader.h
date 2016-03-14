@@ -14,6 +14,6 @@ public:
 	bool lock(int numberOfThread);
 	void unlock(int numberOfThread);
 };
-bool increment(volatile long long & b, long long needed, futex & mutex, int i);
+bool increment(volatile long long & b, long long needed, futex & ftx, int i);
 
-bool increment(volatile long long & b, long long needed, futex & mutex, int i);
+bool increment(volatile long long & b, long long needed, std::mutex & mtx, int i);

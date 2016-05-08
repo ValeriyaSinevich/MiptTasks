@@ -1,6 +1,5 @@
 #include "lock_free.hpp"
 #include <thread>
-#include <vector>
 //#define BOOST_TEST_MODULE MyTest
 //#define BOOST_TEST_MAIN
 //#include <boost/test/unit_test.hpp>

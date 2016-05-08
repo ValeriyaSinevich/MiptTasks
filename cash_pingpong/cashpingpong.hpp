@@ -61,7 +61,7 @@ void increment(T & a, std::string cash_line_name) {
 	start = std::chrono::system_clock::now();
 	std::vector<std::thread> threads;
 	threads.push_back(std::thread(change, std::ref(a.store1)));
-	threads.push_back(std::thread(change, std::ref(a.store1)));
+	threads.push_back(std::thread(change, std::ref(a.store2)));
 	threads[0].join();
 	threads[1].join();
 	end = std::chrono::system_clock::now();
@@ -74,7 +74,7 @@ int main() {
 	same_cache_line line1;
 	different_cache_line line2;
 
-	std::cout << cache_line_size() << std::endl;
+	std::cout << "cache line size: " << cache_line_size() << std::endl;
 
 	increment(line1, "same_cache_line"); //3596 milliseconds
 	increment(line2, "different_cache_line"); //4378 milliseconds

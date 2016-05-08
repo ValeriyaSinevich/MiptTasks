@@ -1,2 +1,2 @@
-	same cachelines (cashe ping pong) = 3596 milliseconds
-	different cashelines = 4378 milliseconds
+	same cachelines (cashe ping pong) = 3887 milliseconds
+	different cashelines = 882 milliseconds

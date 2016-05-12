@@ -7,6 +7,8 @@ using std::endl;
 using std::min;
 using std::max;
 
+#define black color(0, 0, 0);
+
 
 //bool point_on_interval(vect a, point x_0, point p) {
 //	double t = proportional(p - x_0, a);
@@ -41,59 +43,72 @@ point intersec_bb_ray(bounding_box bb, point location, vect ray) {
 }
 
 
-std::pair<point, color>  view_bounding_box(kd_tree_node* subtree, point location,
+std::pair<Object*, point>  Viewer::view_bounding_box(kd_tree_node* subtree,
 	vect ray, vector<torch> & torches) {
 	if (subtree->size == 1) {
 		point intersec_point = subtree->pivot_obj->check_intersection(location, ray);
 		if (intersec_point.x != not_a_point)  {
-			double q = 1. / 255;
-			//cout << *scr_point << endl << intersec_point << endl;
-			double t = 50 * q;
-			for (vector<torch>::iterator trch = torches.begin(); trch != torches.end(); ++trch) {
-				t += subtree->pivot_obj->calc_color_intensivity(*trch, intersec_point, location) * q;
-			}
-			color _c = subtree->pivot_obj->c;
-			_c.set_intensivity(t);
-			return std::make_pair(intersec_point, _c);
+			//double q = 1. / 255;
+			////cout << *scr_point << endl << intersec_point << endl;
+			//double t = 50 * q;
+			//for (vector<torch>::iterator trch = torches.begin(); trch != torches.end(); ++trch) {
+			//	t += subtree->pivot_obj->calc_color_intensivity(*trch, intersec_point, location) * q;
+			//}
+			//color _c = subtree->pivot_obj->c;
+			//_c.set_intensivity(t);
+			return (std::make_pair(subtree->pivot_obj, intersec_point));
 		}
-		else return std::make_pair(intersec_point, color(0, 0, 0));
+		else return std::make_pair(subtree->pivot_obj, intersec_point);
 	}
 	if (subtree->r == nullptr || (intersec_bb_ray(subtree->r->bb, location, ray).x == not_a_point)) {
-		return view_bounding_box(subtree->l, location, ray, torches);
+		return view_bounding_box(subtree->l, ray, torches);
 	}
 	else if (subtree->l == nullptr || (intersec_bb_ray(subtree->l->bb, location, ray).x == not_a_point)) {
-		return view_bounding_box(subtree->r, location, ray, torches);
+		return view_bounding_box(subtree->r, ray, torches);
 	}
 	else {
 		point l_bb_intersec = intersec_bb_ray(subtree->l->bb, location, ray);
 		point r_bb_intersec = intersec_bb_ray(subtree->r->bb, location, ray);
 		if (closer(location, l_bb_intersec, r_bb_intersec)) {
-			std::pair<point, color> l_bb_intersec_precise =
-				view_bounding_box(subtree->l, location, ray, torches);
-			if (l_bb_intersec_precise.first.x != not_a_point &&
-				closer(location, l_bb_intersec_precise.first, r_bb_intersec))
+			std::pair<Object*, point> l_bb_intersec_precise =
+				view_bounding_box(subtree->l,  ray, torches);
+			if (l_bb_intersec_precise.second.x != not_a_point &&
+				closer(location, l_bb_intersec_precise.second, r_bb_intersec))
 				return l_bb_intersec_precise;
 			else {
-				std::pair<point, color> r_bb_intersec_precise =
-					view_bounding_box(subtree->r, location, ray, torches);
-				return (closer(location, l_bb_intersec_precise.first, r_bb_intersec_precise.first) ?
+				std::pair<Object*, point> r_bb_intersec_precise =
+					view_bounding_box(subtree->r, ray, torches);
+				return (closer(location, l_bb_intersec_precise.second, r_bb_intersec_precise.second) ?
 					location, l_bb_intersec_precise : r_bb_intersec_precise);
 			}
 		}
 		else {
-			std::pair<point, color> r_bb_intersec_precise =
-				view_bounding_box(subtree->r, location, ray, torches);
-			if (r_bb_intersec_precise.first.x != not_a_point &&
-				closer(location, r_bb_intersec_precise.first, l_bb_intersec))
+			std::pair<Object*, point> r_bb_intersec_precise =
+				view_bounding_box(subtree->r, ray, torches);
+			if (r_bb_intersec_precise.second.x != not_a_point &&
+				closer(location, r_bb_intersec_precise.second, l_bb_intersec))
 				return r_bb_intersec_precise;
 			else {
-				std::pair<point, color> l_bb_intersec_precise =
-					view_bounding_box(subtree->l, location, ray, torches);
-				return closer(location, l_bb_intersec_precise.first, r_bb_intersec_precise.first) ?
+				std::pair<Object*, point> l_bb_intersec_precise =
+					view_bounding_box(subtree->l, ray, torches);
+				return closer(location, l_bb_intersec_precise.second, r_bb_intersec_precise.second) ?
 					location, l_bb_intersec_precise : r_bb_intersec_precise;
 			}
 		}
 	}
+}
+
+
+color Viewer::calc_color(vector<torch> & torches, std::pair<Object*, point> intersec_point, vect ray) {
+	double q = 1. / 255;
+	//cout << *scr_point << endl << intersec_point << endl;
+	double t = 50 * q;
+ 	for (vector<torch>::iterator trch = torches.begin(); trch != torches.end(); ++trch) {
+		t += intersec_point.first->calc_color_intensivity(*trch, intersec_point.second, ray) * q;
+	}
+	color c = intersec_point.first->c;
+	c.set_intensivity(t);
+	return c;
 }
 
 
@@ -113,11 +128,33 @@ void Viewer::view(screen & scr, int start, int end, kd_tree *objs_container,
 
 		vect ray = normalize(scr.scr_points[i] - location);
 
-		std::pair<point, color> intersec_point = view_bounding_box(objs_container->root, location, ray, torches);
+		std::pair<Object*, point> intersec_point = view_bounding_box(objs_container->root, ray, torches);
+
+		if (intersec_point.second.x == not_a_point) {
+			l = k / scr.width;
+			m = k % scr.width;
+			img[l][m] = black;
+			k++;
+			continue;
+		}
+
+		vect reflected_ray = normalize(intersec_point.first->calc_reflection(ray, intersec_point.second));
+
+		std::pair<Object*, point> intersec_point_reflected = view_bounding_box(objs_container->root, reflected_ray, torches);
+
+		color c = calc_color(torches, intersec_point, ray);
+
+		if (intersec_point_reflected.second.x != not_a_point) {
+			color add_c = calc_color(torches, intersec_point, reflected_ray);
+			//double distance = square_distance(intersec_point_reflected.second, intersec_point.second);
+			//add_c = add_c * (1 /  distance);
+			double koef = intersec_point.first->reflect_k /*/distance*/;
+			c = add_c * koef + c * (1 - koef);
+		}
 
 		l = k / scr.width;
 		m = k % scr.width;
-		img[l][m] = intersec_point.second;
+		img[l][m] = c;
 		k++;
 		//cout << img[19][19].rgb[0] << endl;
 	}
@@ -125,7 +162,7 @@ void Viewer::view(screen & scr, int start, int end, kd_tree *objs_container,
 }
 
 
-color black = color(0, 0, 0);
+
 
 
 screen::screen(vect _normal, point _center, vect _x_dir, int _width, int _height) : x_dir(normalize(_x_dir)),
@@ -152,16 +189,17 @@ void screen::calc_screen_points() {
 }
 
 
-double Planar_Object::calc_color_intensivity(torch & t, point p, point camera_location) {
-	if (scalar_mult(normal, camera_location - p) < 0)
+double Planar_Object::calc_color_intensivity(torch & t, point p, vect ray) {
+	if (scalar_mult(normal, -ray) < 0)
 		normal = -normal;
 	double cos = std::max(0., angle(t.location - p, normal));
 	double distance = square_distance(t.location, p);
 	return t.intensivity / distance * cos;
 }
 
-double Sphere::calc_color_intensivity(torch & t, point p, point camera_location) {
-	if (scalar_mult(normal, camera_location - p) < 0)
+double Sphere::calc_color_intensivity(torch & t, point p,vect ray) {
+	normal = p - x_0;
+	if (scalar_mult(normal, -ray) < 0)
 		normal = -normal;
 	double cos = std::max(0., angle(t.location - p, normal));
 	double distance = square_distance(t.location, p);

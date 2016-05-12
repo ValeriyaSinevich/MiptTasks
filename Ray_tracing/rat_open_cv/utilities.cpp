@@ -55,6 +55,14 @@ point plane_ray_find_intersection(vect _normal, double d, vect a, point x_0) {
 	return x_0 + a * t;
 }
 
+color operator + (color a, color b) {
+	return (color(a.rgb[0] + b.rgb[0], a.rgb[1] + b.rgb[1], a.rgb[1] + b.rgb[1]));
+}
+
+color operator * (color a, double k) {
+	return (color(a.rgb[0] * k, a.rgb[1] * k, a.rgb[1] * k));
+}
+
 void color::set_intensivity(double k) {
 	rgb[0] = std::min(255., rgb[0] * k);
 	rgb[1] = std::min(255., rgb[1] * k);

@@ -23,59 +23,38 @@ bounding_box merge_bounding_boxes(bounding_box a, bounding_box b) {
 }
 
 
-kd_tree_node::kd_tree_node(vector<Object*> & objects, vector <vector<int> > & indices,
-	const int _axis) : axis(_axis) {
-
-	r = nullptr;
-	l = nullptr;
-	size = 1;
-
-	if (indices[axis].size() == 1) {
-		pivot_obj = objects[indices[axis][0]];
-		pivot_obj->calc_bounding_box();
-		bb = pivot_obj->bb;
-		//r = new kd_tree_node(pivot_obj);
+bool xComp(Object* const & a, Object* const & b) {
+	if (a->x_0.x == b->x_0.x) {
+		if (a->x_0.y == b->x_0.y)
+			return a->x_0.z < b->x_0.z;
+		else
+			return a->x_0.y < b->x_0.y;
 	}
-	else {
-		int midsize = (indices[axis].size() + 1) / 2;
-		int mediana = indices[axis][midsize];
-		Object* pivot_obj = objects[mediana];
-		vector<int> res1_less;
-		vector<int> res1_gr;
-		vector<int> res2_less;
-		vector<int> res2_gr;
-		reorder_array(objects, pivot_obj, axis, indices[(axis + 1) % 3], res1_less, res1_gr);
-		reorder_array(objects, pivot_obj, axis, indices[(axis + 2) % 3], res2_less, res2_gr);
-
-		vector <vector<int> > new_indices_l(3);
-		vector <vector<int> > new_indices_r(3);
-
-		for (auto it = indices[axis].begin(); it != indices[axis].begin() + midsize; ++it) {
-			new_indices_l[axis].push_back(*it);
-		}
-		//std::copy(indices[axis].begin(), indices[axis].begin() + mediana, new_indices_l[axis].begin());
-		new_indices_l[(axis + 1) % 3] = res1_less;;
-		new_indices_l[(axis + 2) % 3] = res2_less;
-
-		//std::copy(indices[axis].begin() + mediana, indices[axis].end(), new_indices_l[axis].begin());
-		for (auto it = indices[axis].begin() + midsize; it != indices[axis].end(); ++it) {
-			new_indices_r[axis].push_back(*it);
-		}
-		new_indices_r[(axis + 1) % 3] = res1_gr;
-		new_indices_r[(axis + 2) % 3] = res2_gr;
-
-		indices.clear();
-
-		pivot_obj->calc_bounding_box();
-		if (new_indices_l.size() != 0)
-			l = new kd_tree_node(objects, new_indices_l, (axis + 1) % 3);
-		if (new_indices_l.size() != 0)
-			r = new kd_tree_node(objects, new_indices_r, (axis + 1) % 3);
-		bb = merge_bounding_boxes(l->bb, r->bb);
-		size = (r == nullptr ? 0 : r->size) + (l == nullptr ? 0 : l->size);
-	}
+	else
+		return a->x_0.x < b->x_0.x;
 }
 
+bool yComp(Object* const & a, Object* const & b) {
+	if (a->x_0.y == b->x_0.y) {
+		if (a->x_0.z == b->x_0.z)
+			return a->x_0.x < b->x_0.x;
+		else
+			return a->x_0.z < b->x_0.z;
+	}
+	else
+		return a->x_0.y < b->x_0.y;
+}
+
+bool zComp(Object* const & a, Object* const & b) {
+	if (a->x_0.z == b->x_0.z) {
+		if (a->x_0.x == b->x_0.x)
+			return a->x_0.y < b->x_0.y;
+		else
+			return a->x_0.x < b->x_0.x;
+	}
+	else
+		return a->x_0.z < b->x_0.z;
+}
 
 struct xyzComparator : public std::binary_function<point, point, bool> {
 public:
@@ -119,69 +98,96 @@ public:
 	}
 };
 
+
+
+
+kd_tree_node::kd_tree_node(vector<Object*> & objects, int start, int end, const int _axis) : axis(_axis) {
+	r = nullptr;
+	l = nullptr;
+	size = 1;
+
+	if (end - start == 1) {
+		pivot_obj = objects[start];
+		pivot_obj->calc_bounding_box();
+		bb = pivot_obj->bb;
+		//r = new kd_tree_node(pivot_obj, axis);
+	}
+	else {
+
+
+		int midsize = (end - start + 1) / 2;
+
+		switch (axis) {
+		case 0:
+			std::nth_element(objects.begin() + start, objects.begin() + start + midsize, objects.begin() + end, xComp);
+			break;
+		case 1:
+			std::nth_element(objects.begin() + start, objects.begin() + start + midsize, objects.begin() + end, yComp);
+			break;
+		case 2:
+			std::nth_element(objects.begin() + start, objects.begin() + start + midsize, objects.begin() + end, zComp);
+			break;
+		}
+		pivot_obj = *(objects.begin() + midsize);
+
+		//vector<Object*> array_less;
+		//vector<Object*> array_gr;
+
+		//reorder_array(objects, pivot_obj, axis, array_less, array_gr);
+		if (midsize > 0)
+			l = new kd_tree_node(objects, start, start + midsize, (axis + 1) % 3);
+		if (end - midsize - start > 0)
+			r = new kd_tree_node(objects, start + midsize, end, (axis + 1) % 3);
+
+
+		if (l == nullptr) {
+			if (r == nullptr) {
+				bb = pivot_obj->bb;
+				pivot_obj->calc_bounding_box();
+			}
+			else
+				bb = r->bb;
+		}
+		else
+			bb = merge_bounding_boxes(l->bb, r->bb);
+
+		size = (r == nullptr ? 0 : r->size) + (l == nullptr ? 0 : l->size);
+	}
+}
+
 void kd_tree_node::reorder_array(vector<Object*> & objects,
-	Object *mediana,
+	Object *pivot_object,
 	int axis,
-	vector<int> & array_to_sort,
-	vector<int> & result_array_less,
-	vector<int> & result_array_gr) {
-	if (axis == 0) {
-		for (unsigned int i = 0; i < array_to_sort.size(); ++i) {
-			Object* obj = objects[array_to_sort[i]];
-			if (obj->x_0.x < mediana->x_0.x)
-				result_array_less.push_back(i);
+	vector<Object*> & result_array_less,
+	vector<Object*> & result_array_gr) {
+
+	for (vector<Object*>::iterator i = objects.begin(); i != objects.end(); ++i) {
+		switch (axis) {
+		case 0:
+			if ((*(*i)).x_0.x < (*pivot_object).x_0.x) 
+				result_array_less.push_back(*i);
 			else 
-				result_array_gr.push_back(i);
-		}
-	}
-	if (axis == 1) {
-		for (unsigned int i = 0; i < array_to_sort.size(); ++i) {
-			Object* obj = objects[array_to_sort[i]];
-			if (obj->x_0.y < mediana->x_0.y)
-				result_array_less.push_back(i);
+				result_array_less.push_back(*i);		
+			break;
+		case 1:
+			if ((*(*i)).x_0.y < (*pivot_object).x_0.y)
+				result_array_less.push_back(*i);
 			else
-				result_array_gr.push_back(i);
-		}
-	}
-	if (axis == 2) {
-		for (unsigned int i = 0; i < array_to_sort.size(); ++i) {
-			Object* obj = objects[array_to_sort[i]];
-			if (obj->x_0.z < mediana->x_0.z)
-				result_array_less.push_back(i);
+				result_array_less.push_back(*i);
+			break;
+		case 2:
+			if ((*(*i)).x_0.z < (*pivot_object).x_0.z)
+				result_array_less.push_back(*i);
 			else
-				result_array_gr.push_back(i);
+				result_array_less.push_back(*i);
+			break;
 		}
 	}
 }
 
 
 kd_tree::kd_tree(vector<Object*> & objects) {
-
-	vector<vector<int> > indices(3);
-
-	std::map<point, int, xyzComparator> xyz;
-	std::map<point, int, yzxComparator> yzx;
-	std::map<point, int, zxyComparator> zxy;
-
-	for (unsigned int i = 0; i < objects.size(); ++i) {
-		xyz.insert(std::make_pair(objects[i]->x_0, i));
-		yzx.insert(std::make_pair(objects[i]->x_0, i));
-		zxy.insert(std::make_pair(objects[i]->x_0, i));
-	}
-	std::map<point, int>::iterator xyz_iterator = xyz.begin();
-	std::map<point, int>::iterator yzx_iterator = yzx.begin();
-	std::map<point, int>::iterator zxy_iterator = zxy.begin();
-
-	for (std::map<point, int>::iterator i = xyz.begin(); i != xyz.end(); i++) {
-		indices[0].push_back(i->second);
-	}
-	for (std::map<point, int>::iterator i = yzx.begin(); i != yzx.end(); i++) {
-		indices[1].push_back(i->second);
-	}
-	for (std::map<point, int>::iterator i = zxy.begin(); i != zxy.end(); i++) {
-		indices[2].push_back(i->second);
-	}
-	root = new kd_tree_node(objects, indices, 0);
+	root = new kd_tree_node(objects, 0, objects.size(), 0);
 }
 
 

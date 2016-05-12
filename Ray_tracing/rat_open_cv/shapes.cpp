@@ -53,14 +53,29 @@ point Sphere::check_intersection(point p, vect ray) {
 }
 
 void Sphere::calc_bounding_box() {
-	double left_x = std::min((x_0 - normal).y, (x_0 + normal).y);
-	double left_y = std::min((x_0 - normal).y, (x_0 + normal).y);
-	double left_z = std::min((x_0 - normal).y, (x_0 + normal).y);
+	double left_x = x_0.x - norm(normal);
+	double left_y = x_0.y - norm(normal);
+	double left_z = x_0.z - norm(normal);
 
-	double right_x = std::max((x_0 - normal).x, (x_0 + normal).x);
-	double right_y = std::max((x_0 - normal).y, (x_0 + normal).y);
-	double right_z = std::max((x_0 - normal).y, (x_0 + normal).y);
+	double right_x = x_0.x + norm(normal);
+	double right_y = x_0.y + norm(normal);
+	double right_z = x_0.z + norm(normal);
 
 	bb = bounding_box(point(left_x, left_y, left_z), point(right_x, right_y, right_z));
+}
+
+vect Planar_Object::calc_reflection(vect ray, point p) {
+	vect projection = normal * scalar_mult(ray, normalize(normal));
+	vect diff = projection + ray;
+	point d = p - ray + diff * 2;
+	return d - p;
+}
+
+vect Sphere::calc_reflection(vect ray, point p) {
+	normal = p - x_0;
+	vect projection = normal * scalar_mult(ray, normalize(normal));
+	vect diff = projection + ray;
+	point d = p - ray + diff * 2;
+	return d - p;
 }
 

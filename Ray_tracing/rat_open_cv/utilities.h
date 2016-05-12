@@ -44,6 +44,8 @@ struct color {
 	void set_intensivity(double k);
 };
 
+color operator + (color a, color b);
+color operator * (color a, double k);
 bool closer(point viewer, point const & a, point const & b);
 point closest_from_two(point viewer, point const & a, point const & b);
 double norm(vect v);

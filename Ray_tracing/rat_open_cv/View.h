@@ -59,6 +59,9 @@ public:
 	Viewer() {};
 	Viewer(point _location) : location(_location){}
 	void view(screen & scr, int start, int end, kd_tree *objs, vector<vector<color> > & img, vector<torch> & torches);
+	std::pair<Object*, point>  view_bounding_box(kd_tree_node* subtree,
+		vect ray, vector<torch> & torches);
+	color calc_color(vector<torch> & torches, std::pair<Object*, point> intersec_point, vect ray);
 private:
 	point location;
 	//void push_ray(vector<point> & scr_points, kd_tree *objs);

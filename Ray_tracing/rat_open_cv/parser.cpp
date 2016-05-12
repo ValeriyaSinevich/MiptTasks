@@ -32,7 +32,7 @@ double string_to_double(const std::string& s)
 }
 
 
-void Parser::read_stl_triangles(vector<Object*> objects, std::string file) {
+void Parser::read_stl_triangles(vector<Object*> & objects, std::string file) {
 	std::ifstream in;
 	in.open(file);
 
@@ -77,7 +77,7 @@ void Parser::read_stl_triangles(vector<Object*> objects, std::string file) {
 }
 
 
-point Parser::parse_stl_input(screen & scr, kd_tree *objects_container,
+point Parser::parse_stl_input(screen & scr, kd_tree * &objects_container,
 	vector<torch> & torches, std::string file, vector<Object*> & objects) {
 	//vector<Object*> objects;
 	read_stl_triangles(objects, file);
@@ -85,9 +85,10 @@ point Parser::parse_stl_input(screen & scr, kd_tree *objects_container,
 	objects_container = new kd_tree(objects);
 
 	torches.push_back(torch(point(1000, 0, 0), 1000000000));
+	torches.push_back(torch(point(1000, 1000, 1000), 1000000000));
 
-	point center(0, 0, 0);
-	point location(0, 0, 15);
+	point center(0, -150, 0);
+	point location(0, 15, 2);
 	scr = screen(center - location, center, vect(1, 0, 0), 250, 250);
 	return location;
 }

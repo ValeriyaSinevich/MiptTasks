@@ -15,18 +15,16 @@ struct kd_tree_node {
 	kd_tree_node* l;
 	kd_tree_node* r;
 	~kd_tree_node();
-	//kd_tree_node(Object * obj);
+	kd_tree_node(Object * obj, int _axis) : pivot_obj(obj), axis(axis) {};
 
-	kd_tree_node(vector<Object*> & objects, vector <vector<int> > & indices,
-		const int _axis);
+	kd_tree_node::kd_tree_node(vector<Object*> & objects, int start, int end, const int _axis);
 
 	//kd_tree_node(Object * obj, double value, int axis);
 	void reorder_array(vector<Object*> & objects,
-		Object *mediana,
+		Object *pivot_obj,
 		int axis,
-		vector<int> & array_to_sort,
-		vector<int> & result_array_less,
-		vector<int> & result_array_gr);
+		vector<Object*> & result_array_less,
+		vector<Object*> & result_array_gr);
 };
 
 

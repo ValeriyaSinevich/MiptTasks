@@ -5,7 +5,8 @@
 #include <fstream>
 #include <algorithm>
 using std::vector;
-const double not_a_point = 1e18;
+const double INF = 1e18;
+
 
 struct point {
 	double x, y, z;
@@ -18,6 +19,11 @@ struct point {
 		return output;
 	}
 };
+
+
+const point not_a_point = point(INF, INF, INF);
+
+
 
 typedef point vect;
 
@@ -57,6 +63,7 @@ vect operator - (point a, point b);
 vect operator - (point a);
 vect operator + (point a, point b);
 bool operator == (point a, point b);
+bool operator != (point a, point b);
 vect operator * (vect a, vect b);
 vect operator * (vect a, double k);
 vect operator / (vect a, double k);

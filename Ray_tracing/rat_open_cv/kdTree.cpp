@@ -56,47 +56,47 @@ bool zComp(Object* const & a, Object* const & b) {
 		return a->x_0.z < b->x_0.z;
 }
 
-struct xyzComparator : public std::binary_function<point, point, bool> {
-public:
-	bool operator()(point const & a, point const & b) const {
-		if (a.x == b.x) {
-			if (a.y == b.y)
-				return a.z < b.z;
-			else
-				return a.y < b.y;
-		}
-		else
-			return a.x < b.x;
-	}
-};
-
-struct yzxComparator : public std::binary_function<point, point, bool> {
-public:
-	bool operator()(point const & a, point const & b) const {
-		if (a.y == b.y) {
-			if (a.z == b.z)
-				return a.x < b.x;
-			else
-				return a.z < b.z;
-		}
-		else
-			return a.y < b.y;
-	}
-};
-
-struct zxyComparator : public std::binary_function<point, point, bool> {
-public:
-	bool operator()(point const & a, point const & b) const {
-		if (a.z == b.z) {
-			if (a.x == b.x)
-				return a.y < b.y;
-			else
-				return a.x < b.x;
-		}
-		else
-			return a.z < b.z;
-	}
-};
+//struct xyzComparator : public std::binary_function<point, point, bool> {
+//public:
+//	bool operator()(point const & a, point const & b) const {
+//		if (a.x == b.x) {
+//			if (a.y == b.y)
+//				return a.z < b.z;
+//			else
+//				return a.y < b.y;
+//		}
+//		else
+//			return a.x < b.x;
+//	}
+//};
+//
+//struct yzxComparator : public std::binary_function<point, point, bool> {
+//public:
+//	bool operator()(point const & a, point const & b) const {
+//		if (a.y == b.y) {
+//			if (a.z == b.z)
+//				return a.x < b.x;
+//			else
+//				return a.z < b.z;
+//		}
+//		else
+//			return a.y < b.y;
+//	}
+//};
+//
+//struct zxyComparator : public std::binary_function<point, point, bool> {
+//public:
+//	bool operator()(point const & a, point const & b) const {
+//		if (a.z == b.z) {
+//			if (a.x == b.x)
+//				return a.y < b.y;
+//			else
+//				return a.x < b.x;
+//		}
+//		else
+//			return a.z < b.z;
+//	}
+//};
 
 
 
@@ -190,32 +190,6 @@ kd_tree::kd_tree(vector<Object*> & objects) {
 	root = new kd_tree_node(objects, 0, objects.size(), 0);
 }
 
-
-
-void Triangle::calc_bounding_box() {
-	double x = std::min(fst.x, std::min(snd.x, thrd.x));
-	double y = std::min(fst.z, std::min(snd.z, thrd.z));
-	double z = std::min(fst.y, std::min(snd.y, thrd.y));
-	bb.left = point(x, y, z);
-
-	x = std::max(fst.x, std::max(snd.x, thrd.x));
-	y = std::max(fst.z, std::max(snd.z, thrd.z));
-	z = std::max(fst.y, std::max(snd.y, thrd.y));
-	bb.right = point(x, y, z);
-}
-
-
-void Rechtangle::calc_bounding_box() {
-	double x = std::min(fst.x, std::min(snd.x, std::min(thrd.x, fourth.x)));
-	double y = std::min(fst.z, std::min(snd.z, std::min(thrd.y, fourth.y)));
-	double z = std::min(fst.y, std::min(snd.y, std::min(thrd.z, fourth.z)));
-	bb.left = point(x, y, z);
-
-	x = std::max(fst.x, std::max(snd.x, thrd.x));
-	y = std::max(fst.z, std::max(snd.z, thrd.z));
-	z = std::max(fst.y, std::max(snd.y, thrd.y));
-	bb.right = point(x, y, z);
-}
 
 
 kd_tree::~kd_tree() {

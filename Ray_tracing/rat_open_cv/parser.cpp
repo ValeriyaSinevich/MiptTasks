@@ -97,29 +97,68 @@ point Parser::parse_input(screen & scr, kd_tree * &objects_container, vector<tor
 
 	//vector<Object*> objs;
 
-	point a(-50, 0, 100);
-	point b(50, 0, 100);
-	point c(0, 100, 100);
+	point a(-100, 0, 200);
+	point b(100, 0, 200);
+	point c(0, 200, 200);
 	vect n = calc_normal(a, b, c);
 	color col(255, 0, 0);
-	Object *newObject1 = new Triangle(normalize(n), col, a, b, c);
+	Object *newObject1 = new Triangle(normalize(n), col, a, b, c, 0.5);
 	objs.push_back(newObject1);
 
-	point a2(-70, 0, 80);
-	point b2(70, 0, 80);
-	point c2(0, 40, 150);
+	point a2(-140, 0, 180);
+	point b2(140, 0, 180);
+	point c2(0, 80, 250);
 	vect n2 = calc_normal(a2, b2, c2);
 	color col2(255, 255, 0);
 
-	Object *newObject2 = new Triangle(normalize(n2), col2, a2, b2, c2);
-	objs.push_back(newObject2);
+	Object *newobject2 = new Triangle(normalize(n2), col2, a2, b2, c2, 0.5);
+	objs.push_back(newobject2);
+
+
+	point sc(200, 200, 200);
+	vect r(50, 50, 50);
+	color col3(255, 255, 255);
+
+	Object *newObject3 = new Sphere(r, col3, sc, 0.2);
+	objs.push_back(newObject3);
+
+	point sc2(-200, 200, 200);
+	vect r2(50, 50, 50);
+	color col4(0, 225, 255);
+
+	Object *newObject4 = new Sphere(r2, col4, sc2, 0.2);
+	objs.push_back(newObject4);
+
+
+	point sc3(0, -150, 400);
+	vect r3(50, 50, 50);
+	color col5(130, 200, 40);
+
+	Object *newObject5 = new Sphere(r3, col5, sc3, 0.2);
+	objs.push_back(newObject5);
+
+	point sc4(-150, -150, 400);
+	vect r4(50, 50, 50);
+	color col6(230, 64, 9);
+
+	Object *newObject6 = new Sphere(r4, col6, sc4, 0.2);
+	objs.push_back(newObject6);
+
+	point sc5(-150, -150, 600);
+	vect r5(50, 50, 50);
+	color col7(230, 255, 9);
+
+	Object *newObject7 = new Sphere(r5, col7, sc5, 0.7);
+	objs.push_back(newObject7);
+
+
 
 	objects_container = new kd_tree(objs);
 
-	torches.push_back(torch(point(0, 0, 0), 1000000));
+	torches.push_back(torch(point(0, 0, 0), 10000000));
 
 	point center(0, 0, 100);
-	point location(0, 0, 0);
+	point location(0, 0, -200);
 	scr = screen(center - location, center, vect(1, 0, 0), 500, 500);
 	return location;
 }

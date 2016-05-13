@@ -20,35 +20,33 @@ point Planar_Object::check_intersection(point p, vect ray) {
 		plane_ray_find_intersection(normal, scalar_mult(normal, x_0), ray, p);
 	bool res = inside(plane_intersec_point);
 	if (res == false)
-		return point(not_a_point, not_a_point, not_a_point);
+		return not_a_point;
 	else
 		return plane_intersec_point;
 }
 
 point Sphere::check_intersection(point p, vect ray) {
-	vect normalUp = ((x_0 - p) * ray);
-	double distance2 = norm2(normalUp) / norm2(ray);
+	vect normed_ray = normalize(ray);
+	point proj = p + normed_ray * scalar_mult(x_0 - p, normed_ray);
+	double distance2 = norm2(proj - x_0);
 	if (distance2 > norm2(normal)) {
-		return point(not_a_point, not_a_point, not_a_point);
+		return not_a_point;
 	}
 	else {
-		double startDistance = sqrt(norm2((x_0 - p)) - distance2);
-		vect normedDirection = normalize(ray);
-		vect projection = p + normedDirection * startDistance;
-		double intersecDistance = sqrt(norm2(normal) - distance2);
+		double intersec_distance = sqrt(norm2(normal) - distance2);
 
-		vect candidate1 = projection - normedDirection * intersecDistance;
-		vect candidate2 = projection + normedDirection * intersecDistance;
+		vect candidate1 = proj - normed_ray * intersec_distance;
+		vect candidate2 = proj - normed_ray * intersec_distance;
 
-		double t1 = scalar_mult((candidate1 - p), normedDirection);
-		double t2 = scalar_mult((candidate2 - p), normedDirection);
-		t1 = ((t1 <= 0) ? not_a_point : t1);
-		t2 = ((t2 <= 0) ? not_a_point : t2);
+		double t1 = scalar_mult((candidate1 - p), normed_ray);
+		double t2 = scalar_mult((candidate2 - p), normed_ray);
+		t1 = ((t1 <= 0) ? INF : t1);
+		t2 = ((t2 <= 0) ? INF : t2);
 		double t = std::min(t1, t2);
-		if (t == not_a_point) {
-			return point(not_a_point, not_a_point, not_a_point);
+		if (t == INF) {
+			return not_a_point;
 		}
-		return p + normedDirection * t;
+		return p + normed_ray * t;
 	}
 }
 
@@ -65,17 +63,48 @@ void Sphere::calc_bounding_box() {
 }
 
 vect Planar_Object::calc_reflection(vect ray, point p) {
-	vect projection = normal * scalar_mult(ray, normalize(normal));
+	normal = normalize(normal);
+	if (scalar_mult(ray, normalize(normal)) > 0)
+		normal = -normal;
+	vect projection = normal * scalar_mult(ray, normal/*normalize(normal)*/);
 	vect diff = projection + ray;
-	point d = p - ray + diff * 2;
-	return d - p;
+	return -ray + diff * 2;
 }
 
 vect Sphere::calc_reflection(vect ray, point p) {
+	//normal = normalize(p - x_0);
 	normal = p - x_0;
-	vect projection = normal * scalar_mult(ray, normalize(normal));
+	long double k = scalar_mult(ray, normalize(normal));
+	vect projection = normalize(normal) * scalar_mult(ray, normalize(normal));
 	vect diff = projection + ray;
-	point d = p - ray + diff * 2;
-	return d - p;
+	return -ray + diff * 2;
 }
+
+
+
+void Triangle::calc_bounding_box() {
+	double x = std::min(fst.x, std::min(snd.x, thrd.x));
+	double y = std::min(fst.y, std::min(snd.y, thrd.y));
+	double z = std::min(fst.z, std::min(snd.z, thrd.z));
+	bb.left = point(x, y, z);
+
+	x = std::max(fst.x, std::max(snd.x, thrd.x));
+	y = std::max(fst.y, std::max(snd.y, thrd.y));
+	z = std::max(fst.z, std::max(snd.z, thrd.z));
+	bb.right = point(x, y, z);
+}
+
+
+void Rechtangle::calc_bounding_box() {
+	double x = std::min(fst.x, std::min(snd.x, std::min(thrd.x, fourth.x)));
+	double y = std::min(fst.y, std::min(snd.y, std::min(thrd.z, fourth.z)));
+	double z = std::min(fst.z, std::min(snd.z, std::min(thrd.y, fourth.y)));
+	bb.left = point(x, y, z);
+
+	x = std::max(fst.x, std::max(snd.x, thrd.x));
+	y = std::max(fst.y, std::max(snd.y, thrd.y));
+	z = std::max(fst.z, std::max(snd.z, thrd.z));
+	bb.right = point(x, y, z);
+}
+
 

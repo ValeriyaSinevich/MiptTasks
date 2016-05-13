@@ -22,32 +22,32 @@ using std::max;
 
 
 
-point intersec_bb_ray(bounding_box bb, point location, vect ray) {
-	point t_x_min = location + ray * ((bb.left.x - location.x) / ray.x);
-	point t_x_max = location + ray * ((bb.left.x - location.x) / ray.x);
+point Viewer::intersec_bb_ray(bounding_box bb, point loc, vect ray) {
+	point t_x_min = loc + ray * ((bb.left.x - loc.x) / ray.x);
+	point t_x_max = loc + ray * ((bb.right.x - loc.x) / ray.x);
 
-	point t_y_min = location + ray * ((bb.left.y - location.y) / ray.y);
-	point t_y_max = location + ray * ((bb.right.y - location.y) / ray.y);
+	point t_y_min = loc + ray * ((bb.left.y - loc.y) / ray.y);
+	point t_y_max = loc + ray * ((bb.right.y - loc.y) / ray.y);
 
-	point t_z_min = location + ray * ((bb.left.z - location.z) / ray.z);
-	point t_z_max = location + ray * ((bb.right.z - location.z) / ray.z);
+	point t_z_min = loc + ray * ((bb.left.z - loc.z) / ray.z);
+	point t_z_max = loc + ray * ((bb.right.z - loc.z) / ray.z);
 
-	t_x_min = inside_bounding_box(bb, t_x_min) ? t_x_min : point(0, 0, 0);
-	t_x_max = inside_bounding_box(bb, t_x_max) ? t_x_max : point(0, 0, 0);
-	t_y_min = inside_bounding_box(bb, t_y_min) ? t_y_min : point(0, 0, 0);
-	t_y_max = inside_bounding_box(bb, t_y_max) ? t_y_max : point(0, 0, 0);
-	t_z_min = inside_bounding_box(bb, t_z_min) ? t_z_min : point(0, 0, 0);
-	t_z_max = inside_bounding_box(bb, t_z_max) ? t_z_max : point(0, 0, 0);
+	t_x_min = inside_bounding_box(bb, t_x_min) ? t_x_min : not_a_point;
+	t_x_max = inside_bounding_box(bb, t_x_max) ? t_x_max : not_a_point;
+	t_y_min = inside_bounding_box(bb, t_y_min) ? t_y_min : not_a_point;
+	t_y_max = inside_bounding_box(bb, t_y_max) ? t_y_max : not_a_point;
+	t_z_min = inside_bounding_box(bb, t_z_min) ? t_z_min : not_a_point;
+	t_z_max = inside_bounding_box(bb, t_z_max) ? t_z_max : not_a_point;
 
-	return closest(location, t_x_min, t_x_max, t_y_min, t_y_max, t_z_min, t_z_max);
+	return closest(loc, t_x_min, t_x_max, t_y_min, t_y_max, t_z_min, t_z_max);
 }
 
 
 std::pair<Object*, point>  Viewer::view_bounding_box(kd_tree_node* subtree,
-	vect ray, vector<torch> & torches) {
+	vect ray, vector<torch> & torches, point loc) {
 	if (subtree->size == 1) {
-		point intersec_point = subtree->pivot_obj->check_intersection(location, ray);
-		if (intersec_point.x != not_a_point)  {
+		point intersec_point = subtree->pivot_obj->check_intersection(loc, ray);
+		if (intersec_point != not_a_point)  {
 			//double q = 1. / 255;
 			////cout << *scr_point << endl << intersec_point << endl;
 			//double t = 50 * q;
@@ -60,39 +60,41 @@ std::pair<Object*, point>  Viewer::view_bounding_box(kd_tree_node* subtree,
 		}
 		else return std::make_pair(subtree->pivot_obj, intersec_point);
 	}
-	if (subtree->r == nullptr || (intersec_bb_ray(subtree->r->bb, location, ray).x == not_a_point)) {
-		return view_bounding_box(subtree->l, ray, torches);
+	point l_bb_intersec = intersec_bb_ray(subtree->l->bb, loc, ray);
+	point r_bb_intersec = intersec_bb_ray(subtree->r->bb, loc, ray);
+	if (subtree->r == nullptr || (r_bb_intersec == not_a_point)) {
+		return view_bounding_box(subtree->l, ray, torches, loc);
 	}
-	else if (subtree->l == nullptr || (intersec_bb_ray(subtree->l->bb, location, ray).x == not_a_point)) {
-		return view_bounding_box(subtree->r, ray, torches);
+	else if (subtree->l == nullptr || (l_bb_intersec == not_a_point)) {
+		return view_bounding_box(subtree->r, ray, torches, loc);
 	}
 	else {
-		point l_bb_intersec = intersec_bb_ray(subtree->l->bb, location, ray);
-		point r_bb_intersec = intersec_bb_ray(subtree->r->bb, location, ray);
-		if (closer(location, l_bb_intersec, r_bb_intersec)) {
+		point l_bb_intersec = intersec_bb_ray(subtree->l->bb, loc, ray);
+		point r_bb_intersec = intersec_bb_ray(subtree->r->bb, loc, ray);
+		if (closer(loc, l_bb_intersec, r_bb_intersec)) {
 			std::pair<Object*, point> l_bb_intersec_precise =
-				view_bounding_box(subtree->l,  ray, torches);
-			if (l_bb_intersec_precise.second.x != not_a_point &&
-				closer(location, l_bb_intersec_precise.second, r_bb_intersec))
+				view_bounding_box(subtree->l,  ray, torches, loc);
+			if (l_bb_intersec_precise.second != not_a_point &&
+				closer(loc, l_bb_intersec_precise.second, r_bb_intersec))
 				return l_bb_intersec_precise;
 			else {
 				std::pair<Object*, point> r_bb_intersec_precise =
-					view_bounding_box(subtree->r, ray, torches);
-				return (closer(location, l_bb_intersec_precise.second, r_bb_intersec_precise.second) ?
-					location, l_bb_intersec_precise : r_bb_intersec_precise);
+					view_bounding_box(subtree->r, ray, torches, loc);
+				return (closer(loc, l_bb_intersec_precise.second, r_bb_intersec_precise.second) ?
+					loc, l_bb_intersec_precise : r_bb_intersec_precise);
 			}
 		}
 		else {
 			std::pair<Object*, point> r_bb_intersec_precise =
-				view_bounding_box(subtree->r, ray, torches);
-			if (r_bb_intersec_precise.second.x != not_a_point &&
-				closer(location, r_bb_intersec_precise.second, l_bb_intersec))
+				view_bounding_box(subtree->r, ray, torches, loc);
+			if (r_bb_intersec_precise.second != not_a_point &&
+				closer(loc, r_bb_intersec_precise.second, l_bb_intersec))
 				return r_bb_intersec_precise;
 			else {
 				std::pair<Object*, point> l_bb_intersec_precise =
-					view_bounding_box(subtree->l, ray, torches);
-				return closer(location, l_bb_intersec_precise.second, r_bb_intersec_precise.second) ?
-					location, l_bb_intersec_precise : r_bb_intersec_precise;
+					view_bounding_box(subtree->l, ray, torches, loc);
+				return closer(loc, l_bb_intersec_precise.second, r_bb_intersec_precise.second) ?
+					loc, l_bb_intersec_precise : r_bb_intersec_precise;
 			}
 		}
 	}
@@ -122,15 +124,15 @@ void Viewer::view(screen & scr, int start, int end, kd_tree *objs_container,
 
 	for (unsigned int i = start; i < end; ++i) {
 		//intersec_points.clear();
-		if (scr.scr_points[i] == point(0, 0, 100)) {
+		if (scr.scr_points[i] == point(0, 2, 100)) {
 			cout << " control" << endl;
 		}
 
 		vect ray = normalize(scr.scr_points[i] - location);
 
-		std::pair<Object*, point> intersec_point = view_bounding_box(objs_container->root, ray, torches);
+		std::pair<Object*, point> intersec_point = view_bounding_box(objs_container->root, ray, torches, location);
 
-		if (intersec_point.second.x == not_a_point) {
+		if (intersec_point.second == not_a_point) {
 			l = k / scr.width;
 			m = k % scr.width;
 			img[l][m] = black;
@@ -140,12 +142,13 @@ void Viewer::view(screen & scr, int start, int end, kd_tree *objs_container,
 
 		vect reflected_ray = normalize(intersec_point.first->calc_reflection(ray, intersec_point.second));
 
-		std::pair<Object*, point> intersec_point_reflected = view_bounding_box(objs_container->root, reflected_ray, torches);
+		std::pair<Object*, point> intersec_point_reflected =
+			view_bounding_box(objs_container->root, reflected_ray, torches, intersec_point.second);
 
 		color c = calc_color(torches, intersec_point, ray);
 
-		if (intersec_point_reflected.second.x != not_a_point) {
-			color add_c = calc_color(torches, intersec_point, reflected_ray);
+		if (intersec_point_reflected.second != not_a_point) {
+			color add_c = calc_color(torches, intersec_point_reflected, reflected_ray);
 			//double distance = square_distance(intersec_point_reflected.second, intersec_point.second);
 			//add_c = add_c * (1 /  distance);
 			double koef = intersec_point.first->reflect_k /*/distance*/;

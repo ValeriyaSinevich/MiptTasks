@@ -40,6 +40,10 @@ bool operator == (point a, point b) {
 	return (a.x == b.x && a.y == b.y && a.z == b.z);
 }
 
+bool operator != (point a, point b) {
+	return (a.x != b.x || a.y != b.y || a.z != b.z);
+}
+
 vect operator / (vect a, double k) {
 	return vect(a.x / k, a.y / k, a.z / k);
 }
@@ -95,12 +99,12 @@ bool two_points_to_one_side(point fst, point snd, point start, point end) {
 
 
 bool inside_bounding_box(bounding_box bb, point p) {
-	if (p.x <= bb.left.x || p.x >= bb.right.x
-		|| p.y <= bb.left.y || p.y >= bb.right.y ||
-		p.z <= bb.left.z || p.z >= bb.right.z)
-		return false;
-	else
+	if (p.x >= bb.left.x && p.x <= bb.right.x
+		&& p.y >= bb.left.y && p.y <= bb.right.y &&
+		p.z >= bb.left.z && p.z <= bb.right.z)
 		return true;
+	else
+		return false;
 }
 
 
@@ -108,5 +112,5 @@ double proportional(vect a, vect b) {
 	if (a.x / b.x == a.y / b.y && a.x / b.x == a.z / b.z)
 		return a.x / b.x;
 	else
-		return not_a_point;
+		return INF;
 }

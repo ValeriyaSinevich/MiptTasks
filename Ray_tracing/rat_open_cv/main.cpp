@@ -38,8 +38,8 @@ int main(int argc, char** argv)
 	vector<torch> torches;
 	vector<Object*> objs;
 	vector<vector<color> > img;
-	point location = Parser::parse_stl_input(scr, objects, torches, "gnome.stl", objs);
-	//point location = Parser::parse_input(scr, objects, torches, objs);
+	//point location = Parser::parse_stl_input(scr, objects, torches, "gnome.stl", objs);
+	point location = Parser::parse_input(scr, objects, torches, objs);
 	cout << "width " <<  scr.width << endl << "height " << scr.height << endl;
 	cout << "check mult" << vect(1, 1, 1) * 2 << endl;
 	viewer = Viewer(location);

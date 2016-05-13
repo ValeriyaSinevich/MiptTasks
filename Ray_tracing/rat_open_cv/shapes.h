@@ -51,6 +51,8 @@ struct Planar_Object : public Object {
 
 struct Sphere : public Object {
 	Sphere(vect _normal, point _x_0) : Object(_x_0), normal(_normal)  {}
+	Sphere(vect _normal, color _c, point _x_0) : Object(_x_0, _c), normal(_normal) {}
+	Sphere(vect _normal, color _c, point _x_0, double _reflect_k) : Object(_x_0, _c, _reflect_k), normal(_normal) {}
 	vect normal;
 
 	point check_intersection(point p, vect ray);

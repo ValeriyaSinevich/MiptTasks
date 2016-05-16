@@ -9,7 +9,7 @@ const double INF = 1e18;
 
 
 struct point {
-	double x, y, z;
+	long double x, y, z;
 	point(double a, double b, double c) : x(a), y(b), z(c) {}
 	point() : x(0), y(0), z(0) {}
 
@@ -50,6 +50,16 @@ struct color {
 	void set_intensivity(double k);
 };
 
+
+
+bool less(long double a, long double b);
+bool lessOrEqual(long double a, long  double b);
+bool greater(long double a, long  double b);
+bool greaterOrEqual(long double a, long  double b);
+
+
+bool operator != (color a, color b);
+bool operator == (color a, color b);
 color operator + (color a, color b);
 color operator * (color a, double k);
 bool closer(point viewer, point const & a, point const & b);
@@ -73,7 +83,7 @@ bool two_points_to_one_side(point fst, point snd, point start, point end);
 double angle(vect a, vect b);
 bool two_points_to_one_side(point fst, point snd, point start, point end);
 bool inside_bounding_box(bounding_box bb, point p);
-double proportional(vect a, vect b);
+long double proportional(vect a, vect b);
 
 
 template <typename T>

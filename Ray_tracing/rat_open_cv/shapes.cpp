@@ -12,7 +12,7 @@ bool Rechtangle::inside(point p) {
 		two_points_to_one_side(fst, p, snd, thrd) &&
 		two_points_to_one_side(snd, p, thrd, fourth) &&
 		two_points_to_one_side(fourth, p, fst, snd) &&
-		two_points_to_one_side(thrd, p, fst, fourth));
+		two_points_to_one_side(thrd, p, fourth, fst));
 }
 
 point Planar_Object::check_intersection(point p, vect ray) {
@@ -63,21 +63,23 @@ void Sphere::calc_bounding_box() {
 }
 
 vect Planar_Object::calc_reflection(vect ray, point p) {
+	ray = -ray;
 	normal = normalize(normal);
-	if (scalar_mult(ray, normalize(normal)) > 0)
+	if (scalar_mult(ray, normalize(normal)) < 0)
 		normal = -normal;
 	vect projection = normal * scalar_mult(ray, normal/*normalize(normal)*/);
-	vect diff = projection + ray;
-	return -ray + diff * 2;
+	vect diff = projection - ray;
+	return ray + diff * 2;
 }
 
 vect Sphere::calc_reflection(vect ray, point p) {
+	ray = -ray;
 	//normal = normalize(p - x_0);
 	normal = p - x_0;
 	long double k = scalar_mult(ray, normalize(normal));
-	vect projection = normalize(normal) * scalar_mult(ray, normalize(normal));
-	vect diff = projection + ray;
-	return -ray + diff * 2;
+	vect projection = normal * scalar_mult(ray, normal/*normalize(normal)*/);
+	vect diff = projection - ray;
+	return ray + diff * 2;
 }
 
 
@@ -97,13 +99,13 @@ void Triangle::calc_bounding_box() {
 
 void Rechtangle::calc_bounding_box() {
 	double x = std::min(fst.x, std::min(snd.x, std::min(thrd.x, fourth.x)));
-	double y = std::min(fst.y, std::min(snd.y, std::min(thrd.z, fourth.z)));
-	double z = std::min(fst.z, std::min(snd.z, std::min(thrd.y, fourth.y)));
+	double y = std::min(fst.y, std::min(snd.y, std::min(thrd.y, fourth.y)));
+	double z = std::min(fst.z, std::min(snd.z, std::min(thrd.z, fourth.z)));
 	bb.left = point(x, y, z);
 
-	x = std::max(fst.x, std::max(snd.x, thrd.x));
-	y = std::max(fst.y, std::max(snd.y, thrd.y));
-	z = std::max(fst.z, std::max(snd.z, thrd.z));
+	x = std::max(fst.x, std::max(snd.x, std::max(thrd.x, fourth.x)));
+	y = std::max(fst.y, std::max(snd.y, std::max(thrd.y, fourth.y)));
+	z = std::max(fst.z, std::max(snd.z, std::max(thrd.z, fourth.z)));
 	bb.right = point(x, y, z);
 }
 

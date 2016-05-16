@@ -56,50 +56,6 @@ bool zComp(Object* const & a, Object* const & b) {
 		return a->x_0.z < b->x_0.z;
 }
 
-//struct xyzComparator : public std::binary_function<point, point, bool> {
-//public:
-//	bool operator()(point const & a, point const & b) const {
-//		if (a.x == b.x) {
-//			if (a.y == b.y)
-//				return a.z < b.z;
-//			else
-//				return a.y < b.y;
-//		}
-//		else
-//			return a.x < b.x;
-//	}
-//};
-//
-//struct yzxComparator : public std::binary_function<point, point, bool> {
-//public:
-//	bool operator()(point const & a, point const & b) const {
-//		if (a.y == b.y) {
-//			if (a.z == b.z)
-//				return a.x < b.x;
-//			else
-//				return a.z < b.z;
-//		}
-//		else
-//			return a.y < b.y;
-//	}
-//};
-//
-//struct zxyComparator : public std::binary_function<point, point, bool> {
-//public:
-//	bool operator()(point const & a, point const & b) const {
-//		if (a.z == b.z) {
-//			if (a.x == b.x)
-//				return a.y < b.y;
-//			else
-//				return a.x < b.x;
-//		}
-//		else
-//			return a.z < b.z;
-//	}
-//};
-
-
-
 
 kd_tree_node::kd_tree_node(vector<Object*> & objects, int start, int end, const int _axis) : axis(_axis) {
 	r = nullptr;

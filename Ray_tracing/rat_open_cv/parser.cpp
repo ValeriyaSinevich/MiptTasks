@@ -61,7 +61,7 @@ void Parser::read_stl_triangles(vector<Object*> & objects, std::string file) {
 					vertices_for_triangle[1],
 					vertices_for_triangle[2]);
 				Object* newTriangle = new Triangle(normalize(n),
-					color(255, 255, 255),
+					color(255, 0, 0),
 					vertices_for_triangle[0],
 					vertices_for_triangle[1],
 					vertices_for_triangle[2]);
@@ -101,61 +101,92 @@ point Parser::parse_input(screen & scr, kd_tree * &objects_container, vector<tor
 	point b(100, 0, 200);
 	point c(0, 200, 200);
 	vect n = calc_normal(a, b, c);
-	color col(255, 0, 0);
+	color col(80, 0, 0);
 	Object *newObject1 = new Triangle(normalize(n), col, a, b, c, 0.5);
 	objs.push_back(newObject1);
 
 	point a2(-140, 0, 180);
 	point b2(140, 0, 180);
-	point c2(0, 80, 250);
+	point c2(0, 150, 250);
 	vect n2 = calc_normal(a2, b2, c2);
-	color col2(255, 255, 0);
+	color col2(100, 0, 130);
 
 	Object *newobject2 = new Triangle(normalize(n2), col2, a2, b2, c2, 0.5);
 	objs.push_back(newobject2);
 
+	//point a3(120, 100, 180);
+	//point b3(200, 70, 260);
+	//point c3(170, -200, 250);
+	//vect n3 = calc_normal(a2, b2, c2);
+	//color col8(255, 0, 255);
 
-	point sc(200, 200, 200);
-	vect r(50, 50, 50);
-	color col3(255, 255, 255);
+	//Object *newobject3 = new Triangle(normalize(n3), col8, a3, b3, c3, 0.5);
+	//objs.push_back(newobject3);
 
-	Object *newObject3 = new Sphere(r, col3, sc, 0.2);
+	Object *newObject3 = new Sphere(vect(50, 50, 50), color (0, 70, 150), point(200, 200, 200), 0.2);
 	objs.push_back(newObject3);
 
-	point sc2(-200, 200, 200);
-	vect r2(50, 50, 50);
-	color col4(0, 225, 255);
-
-	Object *newObject4 = new Sphere(r2, col4, sc2, 0.2);
+	Object *newObject4 = new Sphere(vect(50, 50, 50), color(40, 200, 180), point(-200, 200, 200), 0.2);
 	objs.push_back(newObject4);
 
 
-	point sc3(0, -150, 400);
-	vect r3(50, 50, 50);
-	color col5(130, 200, 40);
-
-	Object *newObject5 = new Sphere(r3, col5, sc3, 0.2);
+	Object *newObject5 = new Sphere(vect(50, 50, 50), color(40, 0, 130), point(0, -150, 400), 0.2);
 	objs.push_back(newObject5);
 
-	point sc4(-150, -150, 400);
-	vect r4(50, 50, 50);
-	color col6(230, 64, 9);
-
-	Object *newObject6 = new Sphere(r4, col6, sc4, 0.2);
+	Object *newObject6 = new Sphere(vect(50, 50, 50), color(230, 64, 9), point(-150, -150, 400), 0.2);
 	objs.push_back(newObject6);
 
-	point sc5(-150, -150, 600);
-	vect r5(50, 50, 50);
-	color col7(230, 255, 9);
-
-	Object *newObject7 = new Sphere(r5, col7, sc5, 0.7);
+	Object *newObject7 = new Sphere(vect(70, 50, 50), color(9, 255, 180), point(200, -150, 400), 0.2);
 	objs.push_back(newObject7);
+
+	Object *newObject8 = new Sphere(vect(0, 10, 0), color(0, 30, 30), point(0, -100, 80), 0.1);
+	objs.push_back(newObject8);
+
+	Object *rech1 = new Rechtangle(vect(0, 1, 0), color(0, 255, 0), 0.1,
+		point(50, -150, 100), point(50, -150, 150), point(-50, -150, 150), point(-50, -150, 100));
+	objs.push_back(rech1);
+
+	//Object *rech2 = new Rechtangle(vect(0, 1, 0), color(100, 100, 100), 0.9,
+	//	point(50, -50, 100), point(50, -50, 180), point(-50, -50, 180), point(-50, -50, 100));
+	//objs.push_back(rech2);
+
+	Object *newObject9 = new Sphere(vect(0, 10, 0), color(100, 0, 255), point(0, -200, 120), 0.9);
+	objs.push_back(newObject9);
+
+	Object *newObject10 = new Sphere(vect(0, 30, 0), color(0, 120, 120), point(-200, -100, 80), 0.1);
+	objs.push_back(newObject10);
+
+	Object *newObject11 = new Sphere(vect(0, 50, 0), color(225, 225, 225), point(-100, 190, 400), 0.1);
+	objs.push_back(newObject11);
+
+	//Object *newObject12 = new Sphere(vect(0, 20, 0), color(225, 225, 225), point(0, 0, 50), 0.1);
+	//objs.push_back(newObject12);
+
+	Object *box1 = new Rechtangle(vect(1, 0, 0), color(140, 140, 0), 0.6,
+		point(-250, 250, 100), point(-250, -250, 100), point(-250, -250, 600), point(-250, 250, 600));
+	Object *box2 = new Rechtangle(vect(-1, 0, 0), color(140, 140, 0), 0.6,
+		point(250, -250, 100), point(250, 250, 100), point(250, 250, 600), point(250, -250, 600));
+	Object *box3 = new Rechtangle(vect(0, 1, 0), color(140, 140, 0), 0.6,
+		point(-250, -250, 100), point(250, -250, 100), point(250, -250, 600), point(-250, -250, 600));
+	Object *box4 = new Rechtangle(vect(0, -1, 0), color(140, 140, 0), 0.6,
+		point(-250, 250, 100), point(250, 250, 100), point(250, 250, 600), point(-250, 250, 600));
+	Object *box5 = new Rechtangle(vect(0, 0, -1), color(140, 140, 0), 0.6,
+		point(-250, 250, 600), point(250, 250, 600), point(250, -250, 600), point(-250, -250, 600));
+
+	objs.push_back(box1);
+	objs.push_back(box2);
+	objs.push_back(box3);
+	objs.push_back(box4);
+	objs.push_back(box5);
 
 
 
 	objects_container = new kd_tree(objs);
 
-	torches.push_back(torch(point(0, 0, 0), 10000000));
+	torches.push_back(torch(point(0, 185, 220), 10000000));
+	torches.push_back(torch(point(0, 100, 120), 40000000));
+	torches.push_back(torch(point(0, 0, 0), 30000000));
+
 
 	point center(0, 0, 100);
 	point location(0, 0, -200);

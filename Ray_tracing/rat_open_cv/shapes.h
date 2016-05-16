@@ -86,6 +86,9 @@ struct Rechtangle : public Planar_Object {
 	Rechtangle(vect _normal, color _c, point _fst, point _snd, point _thrd, point _fourth)
 		: Planar_Object(_normal, _fst, _c),
 		fst(_fst), snd(_snd), thrd(_thrd), fourth(_fourth) {}
+	Rechtangle(vect _normal, color _c, double _reflect_k, point _fst, point _snd, point _thrd, point _fourth)
+		: Planar_Object(_normal, _fst, _c, _reflect_k),
+		fst(_fst), snd(_snd), thrd(_thrd), fourth(_fourth) {}
 
 	virtual bool inside(point p);
 	virtual void calc_bounding_box();

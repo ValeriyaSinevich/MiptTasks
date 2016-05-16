@@ -1,4 +1,7 @@
 #include "utilities.h"
+#include <cmath>
+
+const double EPS = 1e-5;
 
 long double square_distance(point a, point b) {
 	return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) + (a.z - b.z) * (a.z - b.z);
@@ -37,11 +40,11 @@ vect operator * (vect a, double k) {
 }
 
 bool operator == (point a, point b) {
-	return (a.x == b.x && a.y == b.y && a.z == b.z);
+	return (fabsl(a.x - b.x) < EPS && fabsl(a.y - b.y) < EPS && fabsl(a.z - b.z) < EPS);
 }
 
 bool operator != (point a, point b) {
-	return (a.x != b.x || a.y != b.y || a.z != b.z);
+	return (fabsl(a.x - b.x) > EPS || fabsl(a.y - b.y) > EPS || fabsl(a.z - b.z) > EPS);
 }
 
 vect operator / (vect a, double k) {
@@ -60,11 +63,19 @@ point plane_ray_find_intersection(vect _normal, double d, vect a, point x_0) {
 }
 
 color operator + (color a, color b) {
-	return (color(a.rgb[0] + b.rgb[0], a.rgb[1] + b.rgb[1], a.rgb[1] + b.rgb[1]));
+	return (color(a.rgb[0] + b.rgb[0], a.rgb[1] + b.rgb[1], a.rgb[2] + b.rgb[2]));
+}
+
+bool operator == (color a, color b) {
+	return (a.rgb[0] == b.rgb[0] && a.rgb[1] == b.rgb[1] && a.rgb[2] == b.rgb[2]);
+}
+
+bool operator != (color a, color b) {
+	return (a.rgb[0] != b.rgb[0]) || (a.rgb[1] != b.rgb[1]) || (a.rgb[2] != b.rgb[2]);
 }
 
 color operator * (color a, double k) {
-	return (color(a.rgb[0] * k, a.rgb[1] * k, a.rgb[1] * k));
+	return (color(a.rgb[0] * k, a.rgb[1] * k, a.rgb[2] * k));
 }
 
 void color::set_intensivity(double k) {
@@ -92,25 +103,42 @@ double angle(vect a, vect b) {
 
 
 bool two_points_to_one_side(point fst, point snd, point start, point end) {
-	vect side = end - start;
-	return (scalar_mult((side * (fst - start)), (side * (snd - start))) >= 0);
+	vect side = normalize(end - start);
+	return greaterOrEqual(scalar_mult((side * normalize(fst - start)), (side * normalize(snd - start))), 0);
 }
 
 
 
 bool inside_bounding_box(bounding_box bb, point p) {
-	if (p.x >= bb.left.x && p.x <= bb.right.x
-		&& p.y >= bb.left.y && p.y <= bb.right.y &&
-		p.z >= bb.left.z && p.z <= bb.right.z)
+	if (greaterOrEqual(p.x, bb.left.x) && lessOrEqual(p.x, bb.right.x)
+		&& greaterOrEqual(p.y, bb.left.y) && lessOrEqual(p.y, bb.right.y) &&
+		greaterOrEqual(p.z, bb.left.z) && lessOrEqual(p.z, bb.right.z))
 		return true;
 	else
 		return false;
 }
 
 
-double proportional(vect a, vect b) {
-	if (a.x / b.x == a.y / b.y && a.x / b.x == a.z / b.z)
+long double proportional(vect a, vect b) {
+	if (fabsl(a.x / b.x - a.y / b.y) < EPS && fabsl(a.x / b.z - a.y / b.z) < EPS)
 		return a.x / b.x;
 	else
 		return INF;
+}
+
+
+bool less(long double a, long double b) {
+	return a + EPS < b;
+}
+
+bool lessOrEqual(long double a, long double b) {
+	return a < b + EPS;
+}
+
+bool greater(long double a, long double b) {
+	return less(b, a);
+}
+
+bool greaterOrEqual(long double a, long  double b) {
+	return lessOrEqual(b, a);
 }

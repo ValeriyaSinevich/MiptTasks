@@ -78,8 +78,8 @@ int main(int argc, char** argv)
 	Mat image(scr.height, scr.width, CV_8UC3, Scalar(0, 0, 0));
 	for (int i = 0; i < scr.height; ++i) {
 		for (int j = 0; j < scr.width; ++j) {
-			Vec3b color = Vec3b(img[i][j].rgb[0], img[i][j].rgb[1], img[i][j].rgb[2]);
-			image.at<Vec3b>(i, j) = color;	
+			Vec3b col = Vec3b(img[i][j].rgb[0], img[i][j].rgb[1], img[i][j].rgb[2]);
+			image.at<Vec3b>(i, j) = col;	
 		}
 	}
 	Mat scaled_image;

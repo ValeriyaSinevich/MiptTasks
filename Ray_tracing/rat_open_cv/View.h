@@ -24,7 +24,7 @@ using std::vector;
 
 
 std::pair<point, color>  view_bounding_box(kd_tree_node* subtree, point location,
-	vect ray, vector<torch> & torches);
+	vect ray);
 point intersec_bb_ray(bounding_box bb, point location, vect ray);
 
 //class kd_tree;
@@ -60,9 +60,9 @@ public:
 	Viewer(point _location) : location(_location){}
 	void view(screen & scr, int start, int end, kd_tree *objs, vector<vector<color> > & img, vector<torch> & torches);
 	std::pair<Object*, point>  view_bounding_box(kd_tree_node* subtree,
-		vect ray, vector<torch> & torches, point loc);
+		vect ray, point loc);
 	point intersec_bb_ray(bounding_box bb, point loc, vect ray);
-	color calc_color(vector<torch> & torches, std::pair<Object*, point> intersec_point, vect ray);
+	color calc_color(kd_tree* objs_container, vector<torch> & torches, std::pair<Object*, point> intersec_point, vect ray, int default_light);
 private:
 	point location;
 	//void push_ray(vector<point> & scr_points, kd_tree *objs);

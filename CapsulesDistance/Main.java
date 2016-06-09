@@ -1,7 +1,4 @@
-/**
- * Created by user on 09.06.2016.
- */
-public class Capsules {
+public class Main {
     public static double distance(double ax0,
                                   double ay0,
                                   double bx0,

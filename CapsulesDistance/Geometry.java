@@ -1,6 +1,3 @@
-/**
- * Created by user on 09.06.2016.
- */
 public class Geometry {
     private static final double EPS = 1e-6;
 

@@ -1,6 +1,3 @@
-/**
- * Created by user on 09.06.2016.
- */
 public class Equation {
     private double a;
     private double b;
